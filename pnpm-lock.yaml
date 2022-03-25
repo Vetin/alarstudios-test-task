@@ -1,0 +1,49 @@
+lockfileVersion: 5.3
+
+specifiers:
+  eslintrc: ^1.0.6
+  prettier: ^2.6.0
+
+devDependencies:
+  eslintrc: 1.0.6
+  prettier: 2.6.0
+
+packages:
+
+  /eslint-config-react-app/2.1.0:
+    resolution: {integrity: sha512-8QZrKWuHVC57Fmu+SsKAVxnI9LycZl7NFQ4H9L+oeISuCXhYdXqsOOIVSjQFW6JF5MXZLFE+21Syhd7mF1IRZQ==}
+    peerDependencies:
+      babel-eslint: ^7.2.3
+      eslint: ^4.1.1
+      eslint-plugin-flowtype: ^2.34.1
+      eslint-plugin-import: ^2.6.0
+      eslint-plugin-jsx-a11y: ^5.1.1
+      eslint-plugin-react: ^7.1.0
+    dev: true
+
+  /eslint-plugin-requirejs/3.2.0:
+    resolution: {integrity: sha512-HG9iGoO6I9mlU9y6G9/yOC+Q6jmJf63l1LjGmBuiDFhC/reARexH9hVi6IkPfbbSGK2ruGvMEuivvco1ft0c2Q==}
+    engines: {node: '>=4'}
+    peerDependencies:
+      eslint: '>=3.0.0'
+    dev: true
+
+  /eslintrc/1.0.6:
+    resolution: {integrity: sha1-LmwgfFwVprHA5+XVy7GNe8sBpBM=}
+    dependencies:
+      eslint-config-react-app: 2.1.0
+      eslint-plugin-requirejs: 3.2.0
+    transitivePeerDependencies:
+      - babel-eslint
+      - eslint
+      - eslint-plugin-flowtype
+      - eslint-plugin-import
+      - eslint-plugin-jsx-a11y
+      - eslint-plugin-react
+    dev: true
+
+  /prettier/2.6.0:
+    resolution: {integrity: sha512-m2FgJibYrBGGgQXNzfd0PuDGShJgRavjUoRCw1mZERIWVSXF0iLzLm+aOqTAbLnC3n6JzUhAA8uZnFVghHJ86A==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true

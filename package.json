@@ -1,0 +1,13 @@
+{
+  "name": "alarstudios-test-task",
+  "version": "1.0.0",
+  "scripts": {
+    "format": "prettier --write ./first ./second "
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslintrc": "^1.0.6",
+    "prettier": "^2.6.0"
+  }
+}

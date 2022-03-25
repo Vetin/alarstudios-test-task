@@ -1,0 +1,10 @@
+#app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+canvas {
+  border: 1px solid black;
+}
