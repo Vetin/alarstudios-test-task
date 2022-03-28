@@ -56,7 +56,7 @@ export const UsersTable = (payload) => {
 /**
  * @param {RowUnitPayload} payload
  */
-const rowActions = (payload) => {
+const RowActions = (payload) => {
   const { user, handlers, onModifyClick, mode } = payload;
 
   const modifyText = mode === 'edit' ? 'Сохранить' : 'Редактировать';
@@ -90,7 +90,7 @@ const rowActions = (payload) => {
   });
 };
 
-const rowWrapper = ({ identifier, children }) =>
+const RowWrapper = ({ identifier, children }) =>
   createElement({
     tag: 'div',
     attrs: { className: 'users-table__row' },
@@ -99,12 +99,12 @@ const rowWrapper = ({ identifier, children }) =>
   });
 
 /** @param {RowUnitPayload} payload */
-const viewRow = (payload) => {
+const ViewRow = (payload) => {
   const { user, handlers, onModifyClick, mode } = payload;
 
   const { name, phone } = user;
 
-  return rowWrapper({
+  return RowWrapper({
     identifier: user.id,
     children: [
       createElement({
@@ -115,7 +115,7 @@ const viewRow = (payload) => {
         tag: 'div',
         attrs: { textContent: phone },
       }),
-      rowActions({
+      RowActions({
         handlers,
         mode,
         onModifyClick,
@@ -126,7 +126,7 @@ const viewRow = (payload) => {
 };
 
 /** @param {RowUnitPayload} payload */
-const editRow = (payload) => {
+const EditRow = (payload) => {
   const { user, handlers, onModifyClick, mode } = payload;
 
   const [localUser, updateLocalUser, _, getUser] = createState(user);
@@ -148,7 +148,7 @@ const editRow = (payload) => {
     Object.entries(errors).forEach(([, message]) => alert({ message }));
   };
 
-  return rowWrapper({
+  return RowWrapper({
     identifier: user.id,
     children: [
       Input({
@@ -161,7 +161,7 @@ const editRow = (payload) => {
         value: localUser.phone,
         placeholder: 'Телефон',
       }),
-      rowActions({
+      RowActions({
         handlers,
         mode,
         onModifyClick: handleSave,
@@ -171,6 +171,6 @@ const editRow = (payload) => {
 };
 
 const GET_CREATOR_BY_MODE = {
-  view: viewRow,
-  edit: editRow,
+  view: ViewRow,
+  edit: EditRow,
 };
