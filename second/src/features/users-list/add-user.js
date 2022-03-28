@@ -1,93 +1,65 @@
-import { createElement } from '../../libs/create-element.js';
-import { createState } from '../../libs/create-state.js';
-import { input } from '../../ui/input.js';
-import {
-  NAME_ERROR_MESSAGE,
-  PHONE_ERROR_MESSAGE,
-  validateName,
-  validatePhone,
-} from './validators.js';
+import { createElement } from '../../libs/ui/create-element.js';
+import { createState } from '../../libs/ui/create-state.js';
+import { pipe } from '../../libs/pipe.js';
+import { Input } from '../../ui/input.js';
+import { alert } from '../alert.js';
+import { validateUser } from './validators.js';
+import { createComponent } from '../../libs/ui/create-component.js';
 
-export const addUser = ({ addUser }) => {
-  const [name, updateName, subsribeName] = createState('');
-  const [phone, phoneName, subsribePhone] = createState('');
-  const [errors, setErrors, subsribeErrors] = createState({ name: '', phone: '' });
-  const renderRefs = {
-    name: null,
-    phone: null,
-  };
-  const onSubmit = () => {
-    const form = { name, phone };
-    const isNameValid = validateName(name);
-    const isPhoneValid = validatePhone(phone);
+export const AddUser = ({ addUser, className = '' }) => {
+  const [, nameUpdated, , getName] = createState('');
+  const [, phoneUpdated, , getPhone] = createState('');
 
-    if (!isNameValid) setErrors((errors) => ({ ...errors, name: NAME_ERROR_MESSAGE }));
-    if (!isPhoneValid) setErrors((errors) => ({ ...errors, phone: PHONE_ERROR_MESSAGE }));
-    if (!isNameValid || !isPhoneValid) return;
-
-    addUser(form);
-  };
-
-  const createNameInput = (name) =>
-    input({
-      value: name,
-      change: (e) => updateName(e.target.value),
-      error: errors.name,
-      focus: () => (errors.name ? setErrors((errors) => ({ ...errors, name: '' })) : null),
+  const Name = createComponent(() =>
+    Input({
+      change: (e) => nameUpdated(e.target.value),
+      value: '',
       placeholder: 'Имя',
-    });
+    }),
+  );
 
-  const nameInput = createNameInput(name);
-
-  renderRefs.name = nameInput;
-
-  const rerenderName = (name) => {
-    const node = createNameInput(name);
-    renderRefs.name.replaceWith(node);
-    renderRefs.name = node;
-  };
-
-  subsribeName(rerenderName);
-
-  const createPhoneInput = (phone) =>
-    input({
-      value: phone,
-      change: (e) => updateName(e.target.value),
-      error: errors.phone,
-      focus: () => (errors.phone ? setErrors((errors) => ({ ...errors, phone: '' })) : null),
+  const Phone = createComponent(() =>
+    Input({
+      change: (e) => phoneUpdated(e.target.value),
+      value: '',
       placeholder: 'Телефон',
-    });
+    }),
+  );
 
-  const phoneInput = createPhoneInput(phone);
-  renderRefs.phone = phoneInput;
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  const rerenderPhone = (phone) => {
-    const node = createPhoneInput(phone);
-    renderRefs.phone.replaceWith(node);
-    renderRefs.phone = node;
+    const user = {
+      name: getName(),
+      phone: getPhone(),
+    };
+
+    const { valid, errors } = validateUser(user);
+    if (valid) {
+      pipe(
+        addUser,
+        () => Name.rerender({ attrs: { value: '' } }),
+        () => Phone.rerender((prev) => ({ ...prev, attrs: { ...prev.attrs, value: '' } })),
+        () => phoneUpdated(''),
+        () => nameUpdated(''),
+      )(user);
+    }
+    Object.entries(errors).forEach(([_, message]) => alert({ message }));
   };
-
-  subsribePhone(rerenderPhone);
-
-  subsribeErrors((errors, prevErrors) => {
-    if (prevErrors.name !== errors.name) rerenderName(name);
-    if (prevErrors.phone !== errors.phone) rerenderPhone(phone);
-  });
 
   return createElement({
-    tag: 'div',
-    attrs: {
-      className: 'users-list__row',
-    },
+    tag: 'form',
+    attrs: { className },
+    handlers: [{ type: 'submit', fn: handleSubmit }],
     children: [
-      renderRefs.name,
-      renderRefs.phone,
+      Name.current(),
+      Phone.current(),
       createElement({
         tag: 'button',
         attrs: {
-          textContent: 'string',
+          textContent: 'Добавить',
+          type: 'submit',
         },
-        handlers: [{ type: 'click', fn: onSubmit }],
       }),
     ],
   });

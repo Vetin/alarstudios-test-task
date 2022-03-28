@@ -6,19 +6,26 @@ const shallowClone = (value) => {
 };
 
 export const createState = (value) => {
-  let local = shallowClone(value);
+  const local = { value: shallowClone(value) };
   const subsribers = [];
+
   const subsribe = (fn) => subsribers.push(fn);
 
+  function getState() {
+    return local.value;
+  }
+
   const updater = (newValue) => {
-    const prev = local;
+    const prev = local.value;
+
     if (typeof newValue !== 'function') {
-      local = newValue;
+      local.value = newValue;
     } else {
-      local = newValue(local);
+      local.value = newValue(prev);
     }
-    subsribers.forEach((fn) => fn(local, prev));
+
+    subsribers.forEach((fn) => fn(local.value, prev));
   };
 
-  return [local, updater, subsribe];
+  return [local.value, updater, subsribe, getState];
 };

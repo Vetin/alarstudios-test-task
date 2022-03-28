@@ -1,8 +1,9 @@
-import { createElement } from '../libs/create-element';
+import { createElement } from '../libs/ui/create-element.js';
 
-export const input = ({ value, change, error, focus, placeholder, className }) =>
+export const Input = ({ value, change, focus, placeholder, className = '', identifier }) =>
   createElement({
     tag: 'div',
+    identifier,
     children: [
       createElement({
         tag: 'input',
@@ -13,19 +14,14 @@ export const input = ({ value, change, error, focus, placeholder, className }) =
         },
         handlers: [
           change && {
-            type: 'change',
+            type: 'input',
             fn: change,
           },
           focus && {
             type: 'focus',
             fn: focus,
           },
-        ],
+        ].filter(Boolean),
       }),
-      error &&
-        createElement({
-          tag: 'p',
-          attrs: { textContent: error },
-        }),
     ],
   });

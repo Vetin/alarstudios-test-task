@@ -1,7 +1,7 @@
 export const USERS_MOCKS = [
-  { name: 'Karli', phone: '650-484-1176 x1704', id: 'rjguv8rh91' },
-  { name: 'Amely', phone: '(968) 564-0560 x8920', id: 'or5mfumiq3' },
-  { name: 'Myron', phone: '421-271-0571', id: 'aepbl4pgfv8' },
-  { name: 'Flo', phone: '277.907.2390 x19682', id: '4dj2er1vc58' },
-  { name: 'Audreanne', phone: '807.341.8067 x3620', id: 'r69cikkcr68' },
+  { name: 'Karli', phone: '9-861-112-92-16', id: 'rjguv8rh91' },
+  { name: 'Amely', phone: '6-126-877-08-76', id: 'or5mfumiq3' },
+  { name: 'Myron', phone: '2-586-790-25-58', id: 'aepbl4pgfv8' },
+  { name: 'Flo', phone: '7-820-085-36-64', id: '4dj2er1vc58' },
+  { name: 'Audreanne', phone: '5-576-932-07-63', id: 'r69cikkcr68' },
 ];

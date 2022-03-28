@@ -1,6 +1,9 @@
-import { createElement } from '../../libs/create-element.js';
-import { createState } from '../../libs/create-state.js';
-import { replaceNode } from '../../libs/replace-node.js';
+import { createElement } from '../../libs/ui/create-element.js';
+import { createState } from '../../libs/ui/create-state.js';
+import { replaceNode } from '../../libs/ui/replace-node.js';
+import { Input } from '../../ui/input.js';
+import { alert } from '../alert.js';
+import { validateUser } from './validators.js';
 
 /** @typedef {import('../../api/index').User} User */
 
@@ -16,69 +19,37 @@ const inverseMode = (mode) => (mode === 'view' ? 'edit' : 'view');
 /**
  * @param {{users: User[], handlers: renderUsersTableHandlers}} payload
  */
-export const usersTable = (payload) => {
+export const UsersTable = (payload) => {
   const { users, handlers } = payload;
-  const result = createElement({
-    tag: 'div',
-    attrs: {
-      className: 'users-table',
-    },
-  });
 
-  const changeMode = (payload) => {
-    const { mode, user } = payload;
-    console.log(user);
-    const payloadMode = inverseMode(mode);
-    const updatedNode = GET_CREATOR_BY_MODE[mode]({
+  const changeMode = async (payload) => {
+    const { mode: nextMode, user } = payload;
+
+    const payloadMode = inverseMode(nextMode);
+    const updatedNode = GET_CREATOR_BY_MODE[nextMode]({
       user,
       handlers,
       onModifyClick: (user) => changeMode({ user, mode: payloadMode }),
-      mode,
+      mode: nextMode,
     });
 
-    replaceNode(user.id, updatedNode);
+    if (nextMode === 'view') {
+      await handlers.updateUser(user);
+    } else {
+      replaceNode(user.id, updatedNode);
+    }
   };
 
-  const header = tableHeader();
-  const usersRows = users.map((user) => [
-    user.id,
-    GET_CREATOR_BY_MODE['view']({
-      handlers,
-      onModifyClick: (user) => changeMode({ user, mode: inverseMode('view') }),
-      user,
-      mode: 'view',
-    }),
-  ]);
-  // sync initial render
-
-  result.append(header, ...usersRows.map(([_, node]) => node));
-
-  return result;
-};
-
-const tableHeader = () => {
   return createElement({
     tag: 'fragment',
-    children: [
-      createElement({
-        tag: 'div',
-        attrs: {
-          textContent: 'Имя:',
-        },
+    children: users.map((user) =>
+      GET_CREATOR_BY_MODE['view']({
+        handlers,
+        onModifyClick: (user) => changeMode({ user, mode: inverseMode('view') }),
+        user,
+        mode: 'view',
       }),
-      createElement({
-        tag: 'div',
-        attrs: {
-          textContent: 'Телефон:',
-        },
-      }),
-      createElement({
-        tag: 'div',
-        attrs: {
-          textContent: 'Действия',
-        },
-      }),
-    ],
+    ),
   });
 };
 
@@ -103,7 +74,6 @@ const rowActions = (payload) => {
       createElement({
         tag: 'button',
         attrs: { textContent: modifyText },
-
         handlers: [{ type: 'click', fn: () => onModifyClick(user) }],
       }),
       createElement({
@@ -125,7 +95,7 @@ const rowWrapper = ({ identifier, children }) =>
     tag: 'div',
     attrs: { className: 'users-table__row' },
     children,
-    key: identifier,
+    identifier,
   });
 
 /** @param {RowUnitPayload} payload */
@@ -159,7 +129,7 @@ const viewRow = (payload) => {
 const editRow = (payload) => {
   const { user, handlers, onModifyClick, mode } = payload;
 
-  const [localUser, updateLocalUser] = createState(user);
+  const [localUser, updateLocalUser, _, getUser] = createState(user);
 
   const createChangeHandler = (field) => (e) => {
     updateLocalUser((user) => ({
@@ -168,39 +138,33 @@ const editRow = (payload) => {
     }));
   };
 
+  const handleSave = () => {
+    const user = getUser();
+    const { valid, errors } = validateUser(user);
+    if (valid) {
+      onModifyClick(user);
+      return;
+    }
+    Object.entries(errors).forEach(([, message]) => alert({ message }));
+  };
+
   return rowWrapper({
     identifier: user.id,
     children: [
-      createElement({
-        tag: 'input',
-        attrs: {
-          value: localUser.name,
-        },
-        handlers: [
-          {
-            type: 'change',
-            fn: createChangeHandler('name'),
-          },
-        ],
+      Input({
+        change: createChangeHandler('name'),
+        value: localUser.name,
+        placeholder: 'Имя',
       }),
-      createElement({
-        tag: 'input',
-        attrs: {
-          value: localUser.phone,
-        },
-        handlers: [
-          {
-            type: 'change',
-            fn: createChangeHandler('phone'),
-          },
-        ],
+      Input({
+        change: createChangeHandler('phone'),
+        value: localUser.phone,
+        placeholder: 'Телефон',
       }),
       rowActions({
         handlers,
         mode,
-        onModifyClick: () => {
-          onModifyClick(user);
-        },
+        onModifyClick: handleSave,
       }),
     ],
   });

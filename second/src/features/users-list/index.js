@@ -1,20 +1,31 @@
 import { api } from '../../api/index.js';
-import { createState } from '../../libs/create-state.js';
-import { usersTable } from './users-table.js';
+import { createElement } from '../../libs/ui/create-element.js';
+import { createState } from '../../libs/ui/create-state.js';
+import { AddUser } from './add-user.js';
+import { TableHeader } from './table-header.js';
+import { UsersTable } from './users-table.js';
 
 export const usersList = async () => {
   const [users, setUsers, usersUpdated] = createState([]);
-  const renderTaker = document.createDocumentFragment();
 
   const init = async () => {
     const users = await api.getUsers();
     setUsers(users);
   };
 
+  const addUser = async (user) => {
+    const createdUser = await api.addUser(user);
+    setUsers((users) => users.concat(createdUser));
+  };
+
   const updateUser = async (payload) => {
-    const user = await api.updateUser(paylaod);
-    setUsers();
-    usersRef?.replaceWith({ users });
+    const user = await api.updateUser(payload);
+
+    setUsers((users) => {
+      const userIdx = users.findIndex((u) => u.id === user.id);
+      users[userIdx] = user;
+      return users;
+    });
   };
 
   const deleteUser = async (payload) => {
@@ -22,19 +33,20 @@ export const usersList = async () => {
     setUsers((users) => users.filter((user) => user.id !== payload.id));
   };
 
-  let usersRef = usersTable({ users, handlers: { updateUser, deleteUser } });
+  let usersRef = UsersTable({ users, handlers: { updateUser, deleteUser } });
 
   usersUpdated((users) => {
-    console.log('here', users);
-    const node = usersTable({ users, handlers: { updateUser, deleteUser } });
-
-    usersRef.replaceWith(node);
-
-    usersRef = node;
+    const node = UsersTable({ users, handlers: { updateUser, deleteUser } });
+    usersRef = usersRef.replace(node);
   });
 
   await init();
 
-  renderTaker.append(usersRef);
-  return renderTaker;
+  return createElement({
+    tag: 'div',
+    attrs: {
+      className: 'users-table',
+    },
+    children: [TableHeader(), usersRef, AddUser({ addUser, className: 'users-table__row' })],
+  });
 };
